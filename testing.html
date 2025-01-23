@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Navbar Test</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: lightblue;
+            padding: 1rem;
+            z-index: 1000;
+            width: 100%;
+        }
+        
+        .content {
+            height: 2000px;
+            background-color: #f0f0f0;
+        }
+        
+        .content p {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1>Sticky Navbar</h1>
+    </nav>
+
+    <div class="content">
+        <p>Scroll down to see the sticky navbar in action. There should be a lot of content here!</p>
+    </div>
+
+</body>
+</html>

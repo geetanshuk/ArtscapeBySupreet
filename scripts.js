@@ -12,27 +12,12 @@ $(document).ready(function () {
         } else {
             productList.style.display = "block";
         }
-        productDropdown.addEventListener('mouseenter', function() {
-            productList.style.display = "block"; // Show the dropdown
-        });
-    
-        productDropdown.addEventListener('mouseleave', function() {
-            productList.style.display = "none"; // Hide the dropdown
-        });
-    
-        productList.addEventListener('mouseenter', function() {
-            productList.style.display = "block"; // Keep it open if hovering over the list
-        });
-    
-        productList.addEventListener('mouseleave', function() {
-            productList.style.display = "none"; // Hide it when mouse leaves the dropdown
-        });
     });
 });
 
 function loadNav() {
     $("#navBar").prepend(`
-    <nav class="navbar navbar-expand-lg custom-navbar">
+    <nav class="navbar navbar-expand-lg custom-navbar sticky-navbar">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +26,7 @@ function loadNav() {
             <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item me-4">
-                        <a class="nav-link active" aria-current="page" href="landingPage.html">About</a>
+                        <a class="nav-link active" aria-current="page" href="about.html">About</a>
                     </li>
                     <li class="nav-item">
                         <div class="dropdown">
@@ -66,7 +51,7 @@ function loadNav() {
                 </li>
                 <li class="nav-item">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        Login
+                        Cart
                     </button>
                 </li>
             </ul>
