@@ -120,8 +120,7 @@ nav ul li .productList {
 .rectangle {
     display: flex;
     position: relative;
-    background-color: #E4A0B7;
-    margin-top: 5%;
+    background-color: #FFE6EE;
     width: 100%;
     height: 100%;
     align-items: center;
@@ -136,9 +135,11 @@ nav ul li .productList {
     text-align: center;
 }
 
+
 h2 {
-    text-align: left;
-    font-family: 'italic';
+    text-align: center;
+    font-family: 'Bubblegum Sans', sans-serif;
+    color: #E4A0B7
 }
 
 .image-slider {
@@ -150,9 +151,11 @@ h2 {
 }
 
 .image-slider img {
-    width: 300px;
+    width: 275px;
     height: auto;
     object-fit: cover;
+    border-radius: 30px;
+    border: 3px solid black;
 }
 
 .image-slider::-webkit-scrollbar {
@@ -160,10 +163,18 @@ h2 {
 }
 
 h3 {
-    font-family: 'italic';
+    font-family: 'Bubblegum Sans', 'sans-serif';
+    color: #957DAD;
 }
 
-#panda {
-    width: 300px;
+#jacket {
+    width: 350px;
     height: auto;
+    border-radius: 30px;
+}
+
+#jacket-div {
+    background-color: #FFE6EE;
+    background-size: cover;
+    background-position: center;
 }
