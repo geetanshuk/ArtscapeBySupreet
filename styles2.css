@@ -32,19 +32,15 @@ nav {
 }
 
 #face {
-    max-width: 95%;
-    max-height: 95%;
-    top: -90px;
-    
+    width: 100%;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+
 }
 
-.rectangle {
-    display: flex;
-    background-image: url('images/background.avif'); /* Use your image for background */
-    background-size: cover;
-    width: 100%;
-    height: 400px; /* Height of the rectangle */
-}
+
+
     
 
 #main h1 {
