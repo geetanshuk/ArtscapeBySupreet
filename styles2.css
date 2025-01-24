@@ -2,6 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
+    background-color: #D6CAAB;
 }
 
 nav {
@@ -38,9 +39,6 @@ nav {
     justify-content: center;
 
 }
-
-
-
     
 
 #main h1 {
@@ -51,47 +49,24 @@ nav {
 }
 
 
-h2 {
-    text-align: center;
-    font-family: 'Bubblegum Sans', sans-serif;
-    color: #E4A0B7
-}
-
-.image-slider {
-    display: flex;
-    overflow-x: auto;
-    gap: 35px;
-    padding: 20px;
-    cursor: grab;
-}
-
-.image-slider img {
-    width: 275px;
-    height: auto;
-    object-fit: cover;
-    border-radius: 30px;
-    border: 3px solid black;
-}
-
-.image-slider::-webkit-scrollbar {
-    display: none;
-}
-
 h3 {
     font-family: 'Bubblegum Sans', 'sans-serif';
     color: #957DAD;
-    /*color: #DAB894;*/
-
+    margin: 20vh;
+    text-align: left;
 }
 
 #jacket {
     width: 350px;
     height: auto;
-    border-radius: 30px;
 }
 
-#jacket-div {
-    background-color: #FFE6EE;
-    background-size: cover;
-    background-position: center;
+#border {
+    border: 2px solid black;
+}
+
+.border-line {
+    border-left: 3px solid black;
+    height: 100%;
+    margin: 0;
 }
