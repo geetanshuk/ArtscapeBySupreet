@@ -59,3 +59,58 @@ function loadNav() {
     </nav>
     `);
 }
+
+function getCandy() {
+	$.ajax({
+        url: 'final.php/viewCandy',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+        // Check the structure of the response received
+		if (response.data && Array.isArray(response.data)) {
+			var tableCandy = $('#table-candy');
+			tableCandy.empty(); // Clear existing table rows
+
+			response.data.forEach(function(candy) {
+				var item = $('<td><div class="candy-item"></div></td>');
+				// Append image
+				var img = $('<img>').addClass('candy-image').attr('src', candy.image_url).attr('alt', candy.name);
+				item.append(img);
+
+				// Append name
+				var name = $('<div class="candy-name"></div>').text(candy.name);
+				item.append(name);
+
+				// Append description
+				var description = $('<div class="candy-description"></div>').text(candy.description);
+				item.append(description);
+
+				// Append price
+				var price = $('<div class="candy-price"></div>').text('$' + candy.price);
+				item.append(price);
+
+				// Append action button (optional)
+				var button = $('<button class="cartButton">Add to Cart</button>');
+				
+
+				// Define the click event handler for the button
+				button.on('click', function() {
+					alert('Button clicked for ' + candy.name);
+					// You can add more actions here, such as opening a modal, redirecting, etc.
+				});
+
+				item.append(button);
+
+				// Append the constructed item to the menu container
+				tableCandy.append(item);
+							
+						});
+					} else {
+						console.error('Invalid data format received:', response);
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error('Error fetching data:', error);
+				}
+			});
+}
