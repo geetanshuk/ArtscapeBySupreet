@@ -1,5 +1,6 @@
 $(document).ready(function () {
     loadNav();
+    getPaintings();
 
     // Event listener for toggling dropdown
     document.getElementById('productDropdown').addEventListener('click', function(event) {
@@ -13,7 +14,12 @@ $(document).ready(function () {
             productList.style.display = "block";
         }
     });
+
+    $("#table-paintings").on('click', function() {
+        getPaintings();  // Calls the function when the button is clicked
+    });
 });
+
 
 function loadNav() {
     $("#navBar").prepend(`
@@ -60,33 +66,47 @@ function loadNav() {
     `);
 }
 
-function getCandy() {
+function getPaintings() {
 	$.ajax({
-        url: 'final.php/viewCandy',
+        url: 'final.php/viewPaintings',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
         // Check the structure of the response received
 		if (response.data && Array.isArray(response.data)) {
-			var tableCandy = $('#table-candy');
-			tableCandy.empty(); // Clear existing table rows
+			var tablePainting = $('#table-paintings');
+			tablePainting.empty(); // Clear existing table rows
 
-			response.data.forEach(function(candy) {
-				var item = $('<td><div class="candy-item"></div></td>');
+			response.data.forEach(function(painting) {
+				var item = $('<td><div class="painting-item"></div></td>');
 				// Append image
-				var img = $('<img>').addClass('candy-image').attr('src', candy.image_url).attr('alt', candy.name);
-				item.append(img);
+				var img = document.createElement('img');
+                img.setAttribute('id', 'painting-image');
+                img.setAttribute('src', painting.image_url);  // Set the source of the image dynamically
+                img.setAttribute('alt', painting.name);       // Set the alt attribute
+
+                img.style.width = '250px';  // Resize the image to 200px width
+                img.style.height = 'auto';
+
+                // Append the image to the painting item container
+                $(item).find('.painting-item').append(img);
+
+                // Add an event listener for the image (just a basic example)
+                img.addEventListener('click', function() {
+                    alert('Image clicked: ' + painting.name);
+                });
+
 
 				// Append name
-				var name = $('<div class="candy-name"></div>').text(candy.name);
+				var name = $('<div class="painting-name"></div>').text(painting.name);
 				item.append(name);
 
 				// Append description
-				var description = $('<div class="candy-description"></div>').text(candy.description);
+				var description = $('<div class="painting-description"></div>').text(painting.description);
 				item.append(description);
 
 				// Append price
-				var price = $('<div class="candy-price"></div>').text('$' + candy.price);
+				var price = $('<div class="painting-price"></div>').text('$' + painting.price);
 				item.append(price);
 
 				// Append action button (optional)
@@ -95,14 +115,14 @@ function getCandy() {
 
 				// Define the click event handler for the button
 				button.on('click', function() {
-					alert('Button clicked for ' + candy.name);
+					alert('Button clicked for ' + painting.name);
 					// You can add more actions here, such as opening a modal, redirecting, etc.
 				});
 
 				item.append(button);
 
 				// Append the constructed item to the menu container
-				tableCandy.append(item);
+				tablePainting.append(item);
 							
 						});
 					} else {

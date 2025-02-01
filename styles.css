@@ -123,7 +123,7 @@ h3 {
   }
 
   .custom-button {
-    all: unset; /* Resets all styles */
+    all: unset;
     cursor: pointer; /* Makes the cursor appear as a pointer when hovering */
     display: inline-block; /* Keeps the button inline with the content */
     padding: 0; /* Removes default padding */
