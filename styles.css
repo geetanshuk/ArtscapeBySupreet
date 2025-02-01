@@ -44,6 +44,13 @@ body, html {
     justify-content: center;
 
 }
+
+#cart {
+  font-weight: bold;
+  border-radius: 20px;
+  background:brown;
+  color: white;
+}
     
 
 #main h1 {
@@ -59,6 +66,14 @@ h1 {
     margin: 20vh;
     text-align: left;
 }
+
+h2 {
+    font-family: 'Bubblegum Sans', 'sans-serif';
+    color: brown;
+    font-size: 10vh;
+    text-align: left;
+}
+
 h3 {
     font-family: 'Bubblegum Sans', 'sans-serif';
     color: #957DAD;
