@@ -1,5 +1,6 @@
 $(document).ready(function () {
     loadNav();
+    loadModals();
     getPaintings();
 
     // Event listener for toggling dropdown
@@ -40,7 +41,7 @@ function loadNav() {
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link me-4" href="geetanshuAbout.html">Contact</a>
+                        <a class="nav-link me-4" href="contact.html">Contact</a>
                     </li>
                 </ul>
             </div>
@@ -59,6 +60,107 @@ function loadNav() {
         </div>
     </nav>
     `);
+}
+
+function loadModals() {
+	$("#modals").prepend(`
+	<div class="container-fluid">
+		<div class="row">
+			<!-- Sign Up Modal -->
+			<div class="modal fade" id="signUpModal" tabindex="-1" aria-labelledby="signUpModal" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="signUpModalLabel">Sign Up</h1>
+						</div>
+						<div class="modal-body">
+							<form id="signUpForm" method="GET" novalidate>
+								<label for="signupName">Name:</label>
+								<input type="text" id="signupName" name="signupName" class="text" pattern="^[a-zA-Z ]{1,20}$" required>
+								<br>
+								<br>
+								<label for="signupUsername">Username:</label>
+								<input type="text" id="signupUsername" name="signupUsername" class="text" pattern="^[a-zA-Z0-9_-]{3,16}$" required>
+								<br>
+								<br>
+								<label for="signupPassword">Password:</label>
+								<input type="password" id="signupPassword" name="signupPassword" class="text" pattern="^[a-zA-Z0-9@!?\.]{8,}$" required>
+								<button type="button" onclick="toggleSignupPasswordVisibility()">Show/Hide</button>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<input type="button" class="btn btn-primary" id="signupSubmit" onclick="validateSignUp()" value="Sign Up">
+              
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<!-- Login Modal -->
+			<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModal" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="loginModalLabel">Login</h1>
+						</div>
+						<div class="modal-body">
+							<form id="loginForm" method="GET">
+								<label for="loginUsername">Username:</label>
+								<input type="text" id="loginUsername" name="loginUsername" class="text" pattern="^[a-zA-Z0-9_-]{3,16}$" required>
+								<br>
+								<br>
+								<label for="loginPassword">Password:</label>
+								<input type="password" id="loginPassword" name="loginPassword" class="text" pattern="^[a-zA-Z0-9@!?\.]{8,}$" required>
+								<button type="button" onclick="toggleLoginPasswordVisibility()">Show/Hide</button>
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<input type="button" class="btn btn-primary" id="loginSubmit" onclick="validateLogin()" value="Login">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="row">
+			<!-- Error Modal -->
+			<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModal" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="errorModalLabel">Too Many API Calls</h1>
+						</div>
+						<div class="modal-body">
+							<p>Please wait 5 seconds before calling searching another stock or exchange.</p>
+							<br>
+							<p>We appolgize for this wait, it is not our fault</p>
+						</div>
+						<div class="modal-footer">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="row">
+            <!-- Logout Modal -->
+            <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModal" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="logoutModalLabel">Do You Want To Logout?</h1>
+                        </div>
+                        <div class="modal-body">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <input type="button" class="btn btn-primary" id="logoutSubmit" onclick="getLogout()" data-bs-toggle="modal" data-bs-target="#logoutModal" value="Logout">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	`);
 }
 
 function getPaintings() {
