@@ -2,6 +2,7 @@ $(document).ready(function () {
     loadNav();
     loadModals();
     getPaintings();
+    getCart();
 
     // Event listener for toggling dropdown
     document.getElementById('productDropdown').addEventListener('click', function(event) {
@@ -75,8 +76,8 @@ function loadModals() {
 						</div>
 						<div class="modal-body">
 							<form id="signUpForm" method="GET" novalidate>
-								<label for="signupName">Name:</label>
-								<input type="text" id="signupName" name="signupName" class="text" pattern="^[a-zA-Z ]{1,20}$" required>
+								<label for="signupEmail">Email:</label>
+								<input type="text" id="signupEmail" name="signupEmail" class="text" pattern="^[a-zA-Z ]{1,20}$" required>
 								<br>
 								<br>
 								<label for="signupUsername">Username:</label>
@@ -206,22 +207,30 @@ function getPaintings() {
             
                 // Create price element
                 var price = $('<div class="painting-price text-muted mt-2"></div>').text('$' + painting.price);
-                var addToCart = $('<button id="cart"onclick="addToCart();">Add to Cart</button>');
+                var addToCartButton = $('<button id="cart">Add to Cart</button>');
+                
+                addToCartButton.on('click', function() {
+					addToCart(painting);
+					// You can add more actions here, such as opening a modal, redirecting, etc.
+				});
 
                 frame.append(img)
                     .append(name)
                     .append(price)
-                    .append(addToCart);
+                    .append(addToCartButton);
+                    
             
                 // Append the frame, name, description, and price to the column
                 col.append(frame)
                    .append(name)
                    //.append(description)
                    .append(price)
-                   .append(addToCart);
+                   .append(addToCartButton);
             
                 // Append the column to the row
+                
                 row.append(col);
+                
             
                 // Every 4th painting (index + 1 % 4 == 0) should create a new row
                 if ((index + 1) % 3 === 0 || index === response.data.length - 1) {
@@ -242,3 +251,150 @@ function getPaintings() {
 	}
 	});
 }
+
+function getSignUp() {
+	a = $.ajax({
+		url: 'final.php/signUp',
+		type: "GET",
+		contentType: 'application/json',
+		data: {
+			email: $('#signupEmail').val(),
+			username: $('#signupUsername').val(),
+			password: $('#signupPassword').val()
+		}
+    }).done(function (data) {
+		if (data.status == 0) {
+			loginFromSignup($('#signupUsername').val(), $('#signupPassword').val());
+		} else {
+			// Display signup error
+			// log it
+		}
+	}).fail(function (error) {
+		errorCounter++;
+		$("#main").html(errorCounter);
+		//console.log("error", error.statusText);
+		$("#main").prepend("load Error " + new Date() + "<br>");
+	});
+}
+
+function validateSignUp() {
+	// Get the form and its input fields
+	var form = $('#signUpForm');
+	var usernameInput = $('#signupUsername').val();
+	var passwordInput = $('#signupPassword').val();
+	var emailInput = $('#signupEmail').val();
+  
+	let emailTest = /^[a-zA-Z ]{1,20}$/;
+	if (!emailTest.test(emailInput)) {
+			alert('Email must be up to 20 characters long and can only contain letters and spaces')
+			return false;
+	}
+
+	let userTest = /^[a-zA-Z ]{1,20}$/;
+	if (!userTest.test(usernameInput)) {
+			alert('Username must contain only letters and numbers')
+			return false;
+	}
+
+	let passwordTest = /^[a-zA-Z ]{1,20}$/;
+	if (!passwordTest.test(passwordInput)) {
+			alert('Password must be at least 8 characters long and can only contain letters (both lowercase and uppercase), numbers, @, !, ?, or .')
+			return false;
+	}
+	getSignUp();
+	$('#signUpModal').modal('hide');
+}
+
+function toggleSignupPasswordVisibility() {
+	var passwordInput = $('#signupPassword');
+	if (passwordInput.attr('type') === 'password') {
+		passwordInput.attr('type', 'text');
+	  } else {
+		passwordInput.attr('type', 'password');
+	  }
+}
+
+function addToCart(painting) {
+	$.ajax({
+		url: 'final.php/cart',
+		method: 'POST',
+		dataType: 'json',
+		data: {
+			image: painting.img,
+			name: painting.name,
+			price: painting.price,
+		}
+		}).done(function (data) {
+			if (data.status === 0 || data.status === 1) {
+				console.log('Item added successfully');
+				alert('Item added to cart');
+			} else {
+                
+                
+				console.error('Failed to add item to cart');
+			}
+		}).fail(function (error) {
+			console.log("error", error.statusText);
+		});
+}
+
+function getCart() {
+	$.ajax({
+        url: 'final.php/viewCart',
+        method: 'GET',
+        dataType: 'json',
+	}).done(function (response) {
+        // Check the structure of the response received
+		if (response.status == 0 && response.data && Array.isArray(response.data)) {
+			var tableBody = $('#table-cart');
+			tableBody.empty(); // Clear existing table rows
+			var subTotal = 0;
+		
+			response.data.forEach(function(cart) {
+				// Create a table row
+				var row = $('<div class = row g-0></div>');
+		
+				// Column for image
+				var colImage = $('<div class = col-sm-2></div>');
+				var img = $('<img>')
+					.addClass('sc-product-image img-fluid')
+					.attr('src', cart.image)
+					.attr('alt', cart.name)
+					.attr('width', '250')
+					.attr('height', '250')
+				colImage.append(img).append('<br><br>');
+		
+				// Column for item name and description in a single column
+				var colDescription = $('<div class="col-sm-3"></div>');
+				var itemName = $('<div></div>').text(cart.name).css('font-weight', 'bold');
+				var colQuantity = $('<div></div>').text('quantity: ' + cart.quantity);
+				colDescription.append(itemName).append(colQuantity);
+
+		
+				// Column for item price
+				var colPrice = $('<div class="col-sm-1"></div>').text('$' + cart.price);
+				subTotal += parseFloat(cart.price);
+
+				// Append columns to the row
+				row.append(colImage);
+				row.append(colDescription);
+				row.append(colPrice);
+
+				// Append the row to the table body
+				tableBody.append(row);
+				tableBody.append('______________________________________________________________________________________________');
+				tableBody.append('<br><br>')
+			});
+			tableBody.append('<br>');
+			$('#cart-subtotal').text(subTotal.toFixed(2));
+		} else {
+			console.log("logging response: " + response.data);
+			console.error('Invalid data format received:', response);
+		}
+	}).fail( function(error) {
+			console.error('Error fetching data:', error);
+	});
+}
+
+
+
