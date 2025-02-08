@@ -16,7 +16,41 @@ $(document).ready(function () {
             productList.style.display = "block";
         }
     });
+
+    if (getCookie("sessionID") != null) {
+        updateLoggedIn();
+    }
 });
+
+function clearCookie(name) {
+    document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var cookies = document.cookie.split(';');
+    for(var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        while (cookie.charAt(0) == ' ') {
+            cookie = cookie.substring(1, cookie.length);
+        }
+        if (cookie.indexOf(nameEQ) == 0) {
+            return cookie.substring(nameEQ.length, cookie.length);
+        }
+    }
+    return null;
+}
+
 
 function loadNav() {
     $("#navBar").prepend(`
@@ -54,8 +88,11 @@ function loadNav() {
                 </li>
                 <li class="nav-item">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        Cart
+                        Login
                     </button>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link me-4" href="cart.html">Cart</a>
                 </li>
             </ul>
         </div>
@@ -252,6 +289,16 @@ function getPaintings() {
 	});
 }
 
+function toggleSignupPasswordVisibility() {
+	var passwordInput = $('#signupPassword');
+	if (passwordInput.attr('type') === 'password') {
+		passwordInput.attr('type', 'text');
+	  } else {
+		passwordInput.attr('type', 'password');
+	  }
+}
+
+
 function getSignUp() {
 	a = $.ajax({
 		url: 'final.php/signUp',
@@ -314,13 +361,96 @@ function toggleSignupPasswordVisibility() {
 	  }
 }
 
+function toggleLoginPasswordVisibility() {
+	var passwordInput = $('#loginPassword');
+	if (passwordInput.attr('type') === 'password') {
+		passwordInput.attr('type', 'text');
+	  } else {
+		passwordInput.attr('type', 'password');
+	  }
+}
+
+function validateLogin() {
+	// Get the form and its input fields
+	var form = $('#loginForm');
+	var usernameInput = $('#loginUsername').val();
+	var passwordInput = $('#loginPassword').val();
+  
+	let userTest = /^[a-zA-Z ]{1,20}$/;
+	if (!userTest.test(usernameInput)) {
+			alert('Username must contain only letters and numbers')
+			return false;
+	}
+
+	let passwordTest = /^[a-zA-Z ]{1,20}$/;
+	if (!passwordTest.test(passwordInput)) {
+			alert('Password must be at least 8 characters long and can only contain letters (both lowercase and uppercase), numbers, @, !, ?, or .')
+			return false;
+	}
+	getLogin();
+	$('#loginModal').modal('hide');
+}
+
+function loginFromSignup(user, pass) {
+	a = $.ajax({
+		url: 'final.php/login',
+		type: "GET",
+		contentType: 'application/json',
+		data: {
+			username: user,
+			password: pass
+		}
+	}).done(function (data) {
+		if (data.status == 0) {
+			console.log("Login worked");
+			setCookie("username", $('#signupUsername').val(), 1);
+			setCookie("sessionID", data.session, 1);
+			updateLoggedIn();
+		} else {
+			//console.log("User/Password not found");
+		}
+	}).fail(function (error) {
+		errorCounter++;
+		$("#main").html(errorCounter);
+		//console.log("error", error.statusText);
+		$("#main").prepend("load Error " + new Date() + "<br>");
+	});
+}
+
+function getLogin() {
+	a = $.ajax({
+		url: 'final.php/login',
+		type: "GET",
+		contentType: 'application/json',
+		data: {
+			username: $('#loginUsername').val(),
+			password: $('#loginPassword').val()
+		}
+	}).done(function (data) {
+		if (data.status == 0) {
+			//console.log("Login worked");
+			setCookie("username", $('#loginUsername').val(), 1);
+			setCookie("sessionID", data.session, 1);
+			updateLoggedIn();
+		} else {
+			//console.log("It didnt work");
+			//console.log(data);
+		}
+	}).fail(function (error) {
+		//console.log(error.message);
+	});
+}
+
 function addToCart(painting) {
+    const username = getCookie('username');
+    const sessionID = getCookie('sessionID');
+    console.log(painting);
 	$.ajax({
 		url: 'final.php/cart',
 		method: 'POST',
 		dataType: 'json',
 		data: {
-			image: painting.img,
+			image: painting.image_url,
 			name: painting.name,
 			price: painting.price,
 		}
@@ -329,8 +459,6 @@ function addToCart(painting) {
 				console.log('Item added successfully');
 				alert('Item added to cart');
 			} else {
-                
-                
 				console.error('Failed to add item to cart');
 			}
 		}).fail(function (error) {
@@ -339,10 +467,18 @@ function addToCart(painting) {
 }
 
 function getCart() {
+    var username = getCookie('username');
+    if (!username) {
+        console.error('Username is undefined or empty');
+        return;
+    }
 	$.ajax({
         url: 'final.php/viewCart',
         method: 'GET',
         dataType: 'json',
+        data: {
+            username: username
+        }
 	}).done(function (response) {
         // Check the structure of the response received
 		if (response.status == 0 && response.data && Array.isArray(response.data)) {
