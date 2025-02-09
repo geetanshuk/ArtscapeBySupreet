@@ -122,7 +122,7 @@ function loadModals() {
 								<br>
 								<br>
 								<label for="signupPassword">Password:</label>
-								<input type="password" id="signupPassword" name="signupPassword" class="text" pattern="^[a-zA-Z0-9@!?\.]{8,}$" required>
+								<input type="password" id="signupPassword" name="signupPassword" class="text" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@!?\.]{8,}$" required>
 								<button type="button" onclick="toggleSignupPasswordVisibility()">Show/Hide</button>
 							</form>
 						</div>
@@ -150,7 +150,7 @@ function loadModals() {
 								<br>
 								<br>
 								<label for="loginPassword">Password:</label>
-								<input type="password" id="loginPassword" name="loginPassword" class="text" pattern="^[a-zA-Z0-9@!?\.]{8,}$" required>
+								<input type="password" id="loginPassword" name="loginPassword" class="text" pattern="^(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,}$" required>
 								<button type="button" onclick="toggleLoginPasswordVisibility()">Show/Hide</button>
 							</form>
 						</div>
@@ -315,6 +315,7 @@ function getSignUp() {
 		} else {
 			// Display signup error
 			// log it
+			alert('Username or email exists')
 		}
 	}).fail(function (error) {
 		errorCounter++;
@@ -343,7 +344,8 @@ function validateSignUp() {
 			return false;
 	}
 
-	let passwordTest = /^[a-zA-Z ]{1,20}$/;
+	let passwordTest = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@!?\.]{8,}$/;
+	//^[a-zA-Z0-9@!?\.]{8,}$
 	if (!passwordTest.test(passwordInput)) {
 			alert('Password must be at least 8 characters long and can only contain letters (both lowercase and uppercase), numbers, @, !, ?, or .')
 			return false;
@@ -439,6 +441,87 @@ function getLogin() {
 	}).fail(function (error) {
 		//console.log(error.message);
 	});
+}
+
+function updateLoggedIn() {
+	$("#accountActionButtons").html(`
+		<li class="nav-item">
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#logoutModal">
+		  Logout
+		</button>
+	  </li>
+	`);
+	$("#logTitleSpan").text(getCookie("username"));
+}
+
+function getLogout() {
+	if (getCookie("sessionID") != null) {
+		var session = getCookie("sessionID");
+		var user = getCookie("username");
+		a = $.ajax({
+			url: 'final.php/logout',
+			type: "GET",
+			contentType: 'application/json',
+			data: {
+				username: user,
+				session: session
+			}
+		}).done(function (data) {
+			if (data.status == 0) {
+				clearCookie("sessionID");
+				clearCookie("username");
+				updateLoggedOut();
+			} else {
+				//console.log("Logout error");
+				//console.log(data);
+			}
+		}).fail(function (error) {
+			errorCounter++;
+			$("#main").html(errorCounter);
+			//console.log("error", error.statusText);
+			$("#main").prepend("load Error " + new Date() + "<br>");
+		});
+	} else {
+		a = $.ajax({
+			url: 'final.php/logout',
+			type: "GET",
+			contentType: 'application/json',
+			data: {
+				username: $('#logoutUsername').val(),
+				session: $('#logoutSession').val()
+			}
+		}).done(function (data) {
+			if (data.status == 0) {
+				clearCookie("sessionID");
+				clearCookie("username");
+				updateLoggedOut();
+			} else {
+				// Display signup error
+				// log it
+			}
+		}).fail(function (error) {
+			errorCounter++;
+			$("#main").html(errorCounter);
+			//console.log("error", error.statusText);
+			$("#main").prepend("load Error " + new Date() + "<br>");
+		});
+	}
+}
+
+function updateLoggedOut() {
+	$("#accountActionButtons").html(`
+		<li class="nav-item">
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signUpModal">
+		Sign Up
+		</button>
+		</li>
+		<li class="nav-item">
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+		Login
+		</button>
+	</li>
+	`);
+	$("#logTitleSpan").text("Please login to use this feature");
 }
 
 function addToCart(painting) {

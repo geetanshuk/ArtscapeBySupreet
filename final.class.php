@@ -29,14 +29,49 @@ class final_rest
 
         {
                 try {
-                        $EXIST = GET_SQL("select * from users where username=?", $username);
+                        $EXIST = GET_SQL("select * from users where username=? or email=?", $username, $email);
                         if (count($EXIST) > 0) {
                                 $retData["status"] = 1;
-                                $retData["message"] = "User $username exists";
+                                $retData["message"] = "Username or email exists";
                         } else {
                                 EXEC_SQL("insert into users (email,username,password) values (?,?,?)", $email, $username, password_hash($password, PASSWORD_DEFAULT));
                                 $retData["status"] = 0;
                                 $retData["message"] = "User $username Inserted";
+                        }
+                } catch (Exception $e) {
+                        $retData["status"] = 1;
+                        $retData["message"] = $e->getMessage();
+                }
+
+                return json_encode($retData);
+        }
+
+    public static function login($username, $password)
+
+        {
+                try {
+                        $USER = GET_SQL("select * from users where username=?", $username);
+                        // GET_SQL returns a list of returned records
+                        // Each array element is an array of selected fields with column names as key
+                        if (count($USER) == 1) { // Check if record returned
+                                if (password_verify($password, $USER[0]["Password"])) {
+                                        $cookieID = session_create_id();
+
+                                        EXEC_SQL(
+                                                "update users set session=?, expiration= NOW() + INTERVAL 30 MINUTE where username=?",
+                                                $cookieID,
+                                                $username
+                                        );
+                                        $retData["status"] = 0;
+                                        $retData["session"] = $cookieID;
+                                        $retData["message"] = "User '$username' logged in";
+                                } else {
+                                        $retData["status"] = 1;
+                                        $retData["message"] = "check User/Password Not Found";
+                                }
+                        } else {
+                                $retData["status"] = 1;
+                                $retData["message"] = "checking User/Password Not Found";
                         }
                 } catch (Exception $e) {
                         $retData["status"] = 1;
