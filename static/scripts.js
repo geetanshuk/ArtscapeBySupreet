@@ -63,13 +63,13 @@ function loadNav() {
             <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item me-4">
-                        <a class="nav-link active" aria-current="page" href="about.html">About</a>
+                        <a class="nav-link active" aria-current="page" href="/">About</a>
                     </li>
                     <li class="nav-item">
                         <div class="dropdown">
                             <a class="nav-link me-4" href="#" id="productDropdown">Products <i class="fa fa-caret-down"></i></a>
                             <div class="dropdown-content" id="productList" style="display: none;">
-                                <a href="paintings.html" class="nav-link">Paintings</a>
+                                <a href="/paintings" class="nav-link">Paintings</a>
                                 <a href="#" class="nav-link">Clothing</a>
                                 <a href="#" class="nav-link">Jewelry</a>
                             </div>
@@ -203,7 +203,7 @@ function loadModals() {
 
 function getPaintings() {
 	$.ajax({
-        url: 'final.php/viewPaintings',
+        url: '/api/paintings',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -302,13 +302,14 @@ function toggleSignupPasswordVisibility() {
 function getSignUp() {
 	a = $.ajax({
 		url: 'final.php/signUp',
-		type: "GET",
+		type: "POST",
 		contentType: 'application/json',
-		data: {
+		data: JSON.stringify({
 			email: $('#signupEmail').val(),
 			username: $('#signupUsername').val(),
 			password: $('#signupPassword').val()
-		}
+		}),
+    	dataType: 'json'
     }).done(function (data) {
 		if (data.status == 0) {
 			loginFromSignup($('#signupUsername').val(), $('#signupPassword').val());

@@ -9,8 +9,8 @@
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <script src="https://code.jquery.com/jquery-3.6.3.min.js"
     integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-  <script src="scripts.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
 </head>
     
@@ -18,10 +18,14 @@
   <div id="navBar"></div>
   <div id="modals"></div>
 
+  <script>
+    const paintingsURL = "{{ url_for('view_paintings') }}";
+  </script>
+
   <div class="row g-0">
     <div class="rectangle" id="front">
         <div class="col position-relative d-flex justify-content-center align-items-center">
-            <img src="images\front.png" class="img-fluid" id="face">
+            <img src="{{ url_for('static', filename='images/front.png') }}" class="img-fluid" id="face">
         </div>
     </div>
 </div>
@@ -39,7 +43,7 @@
   </div>
   
   <div class="col-lg-4 d-flex justify-content-center align-items-center text-center">
-      <img src="images/intro.png" id="jacket" class="img-fluid">
+      <img src="{{ url_for('static', filename='images/intro.png') }}" id="jacket" class="img-fluid">
   </div> 
 </div>
 
@@ -51,10 +55,10 @@
     <br><br><br>
     <div class="row g-0 justify-content-center">
       <div class="col-sm-3 d-flex justify-content-center align-items-center position-relative">
-        <a href = 'paintings.html'>
+        <a href="{{ url_for('view_paintings') }}">
           <button type="button" class="custom-button">
             <p class="overlay-text">Paintings</p>
-            <img class="img-fluid first" src="images\IMG_4491.png">
+            <img class="img-fluid first" src="{{ url_for('static', filename='images/IMG_4491.png') }}">
           </button>
         </a>
       </div>
@@ -64,7 +68,7 @@
       <div class="col-sm-3 d-flex justify-content-center align-items-center position-relative">
         <button type="button" class="custom-button">
           <p class="overlay-text">Clothing</p>
-          <img class="img-fluid second" src="images\jacket.png">
+          <img class="img-fluid second" src="{{ url_for('static', filename='images/jacket.png') }}">
         </button>
       </div>
       <div class="col-lg-1 border-line">
@@ -73,7 +77,7 @@
       <div class="col-sm-3 d-flex justify-content-center align-items-center position-relative">
         <button type="button" class="custom-button">
           <p class="overlay-text">Jewelry</p>
-          <img class="img-fluid third" src="images\jewelry.png">
+          <img class="img-fluid third" src="{{ url_for('static', filename='images/jewelry.png') }}">
         </button>
       </div>
     </div>
