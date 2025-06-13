@@ -1,0 +1,51 @@
+# Environment
+.env
+*.env
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Flask instance folder
+instance/
+
+# SQLite database
+*.sqlite3
+*.db
+
+# VS Code and other IDE settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Python virtual environment
+venv/
+env/
+ENV/
+.venv/
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+.nox/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Node.js (if frontend uses npm)
+node_modules/
+
+# Static asset build tools
+staticfiles/
