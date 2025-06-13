@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 from dotenv import load_dotenv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -24,43 +24,73 @@ class Paintings(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Cart(db.Model):
+    __tablename__ = 'cart'
 
-# Dummy in-memory storage to simulate DB functions
-# Replace these with actual DB queries
-users = []
-paintings = []
-cart = []
+    owner_id = db.Column(db.String(255), nullable=False, primary_key=True)  # username or session ID
+    owner_type = db.Column(db.String(50), nullable=False, primary_key=True)  # 'username' or 'session'
+    name = db.Column(db.String(255), nullable=False, primary_key=True)  # item name, part of composite primary key
+    image_url = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255))  # Optional description
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
 
-# Dummy GET_SQL and EXEC_SQL for example purposes
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(255), nullable=False, unique=True)
+    username = db.Column(db.String(100), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+    session = db.Column(db.String(255), nullable=True)
+    expiration = db.Column(db.DateTime, nullable=True)
+
+with app.app_context():
+    db.create_all()
+
 def GET_SQL(query, *params):
     if "from users" in query:
         if "where username=?" in query:
-            return [u for u in users if u['username'] == params[0]]
+            return User.query.filter_by(username=params[0]).all()
         if "where username=? or email=?" in query:
-            return [u for u in users if u['username'] == params[0] or u['email'] == params[1]]
+            return User.query.filter((User.username == params[0]) | (User.email == params[1])).all()
     elif "from paintings" in query:
-        return paintings
+        return Paintings.query.all()
     elif "from cart" in query:
-        return cart
+        if "where name=?" in query and "username=?" in query:
+            return Cart.query.filter_by(name=params[0], username=params[1]).all()
+        elif "where username=?" in query:
+            return Cart.query.filter_by(username=params[0]).all()
     return []
 
 def EXEC_SQL(query, *params):
     if "insert into users" in query:
-        users.append({"email": params[0], "username": params[1], "password": params[2], "session": None})
+        user = User(email=params[0], username=params[1], password=params[2])
+        db.session.add(user)
+        db.session.commit()
     elif "update users set session" in query:
-        for u in users:
-            if u['username'] == params[1]:
-                u['session'] = params[0]
+        session_id, username = params
+        user = User.query.filter_by(username=username).first()
+        if user:
+            user.session = session_id
+            user.expiration = datetime.utcnow() + timedelta(minutes=30)
+            db.session.commit()
     elif "insert into cart" in query:
-        cart.append({"image_url": params[0], "name": params[1], "price": params[2], "quantity": params[3]})
+        cart_item = Cart(username=params[0], image_url=params[1], name=params[2], price=params[3], quantity=params[4])
+        db.session.add(cart_item)
+        db.session.commit()
     elif "update cart set quantity" in query:
-        for item in cart:
-            if item['name'] == params[0]:
-                item['quantity'] += 1
+        name, username = params
+        item = Cart.query.filter_by(name=name, username=username).first()
+        if item:
+            item.quantity += 1
+            db.session.commit()
     elif "update cart set price" in query:
-        for item in cart:
-            if item['name'] == params[0]:
-                item['price'] = item['price'] * item['quantity']
+        name, username = params
+        item = Cart.query.filter_by(name=name, username=username).first()
+        if item:
+            item.price = item.price * item.quantity
+            db.session.commit()
 
 @app.route('/')
 def index():
@@ -68,10 +98,7 @@ def index():
 
 @app.route('/paintings', methods=['GET'])
 def view_paintings():
-    # Fetch all paintings from your DB
-    paintings = Paintings.query.all()  # This returns a list of dicts
-    
-    # Render the template, passing paintings data to it
+    paintings = Paintings.query.all()
     return render_template('paintings.html', paintings=paintings)
 
 @app.route('/api/paintings', methods=['GET'])
@@ -87,6 +114,17 @@ def api_get_paintings():
             "image_url": url_for('static', filename='images/' + p.image_url)
         })
     return jsonify({"status": 0, "data": paintings_list})
+
+@app.route('/product/<product_name>', methods=['GET'])
+def product_details(product_name):
+    product = Cart.query.filter_by(name=product_name).first()  # You can use product_id instead if you have a unique identifier.
+
+    if not product:
+        return render_template('error.html', message="Product not found")
+
+    # Render the product detail page, passing the product data to the template
+    return render_template('product_details.html', product=product)
+
 
 
 @app.route('/signup', methods=['POST'])
@@ -115,41 +153,102 @@ def login():
         password = data['password']
 
         USER = GET_SQL("select * from users where username=?", username)
-        if len(USER) == 1 and check_password_hash(USER[0]['password'], password):
+        if len(USER) == 1 and check_password_hash(USER[0].password, password):
             session_id = str(uuid.uuid4())
-            EXEC_SQL("update users set session=?, expiration= NOW() + INTERVAL 30 MINUTE where username=?", session_id, username)
+            EXEC_SQL("update users set session=?, expiration=NOW() + INTERVAL 30 MINUTE where username=?", session_id, username)
             return jsonify({"status": 0, "session": session_id, "message": f"User '{username}' logged in"})
         else:
             return jsonify({"status": 1, "message": "User/Password Not Found"})
     except Exception as e:
         return jsonify({"status": 1, "message": str(e)})
 
+@app.route('/logout', methods=['GET'])
+def logout():
+    username = request.args.get('username')
+    session = request.args.get('session')
+    # You might want to invalidate the session here
+    return jsonify(status=0)
+
 @app.route('/cart', methods=['POST'])
 def add_to_cart():
-    try:
-        data = request.get_json()
-        image = data['image']
-        name = data['name']
-        price = data['price']
+    data = request.get_json()
+    owner_id = data.get('owner_id')
+    owner_type = data.get('owner_type')
+    image_url = data.get('image_url')
+    name = data.get('name')
+    price = data.get('price')
+    quantity = data.get('quantity', 1)  # Default to 1 if quantity is not provided
 
-        EXIST = GET_SQL("SELECT * FROM cart WHERE name = ?", name)
-        if len(EXIST) > 0:
-            EXEC_SQL("update cart set quantity = quantity + 1 where name = ?", name)
-            EXEC_SQL("update cart set price = price * quantity where name = ?", name)
-            return jsonify({"status": 1, "message": "Item inserted"})
-        else:
-            EXEC_SQL("insert into cart (image_url, name, price, quantity) values (?,?,?,?)", image, name, price, 1)
-            return jsonify({"status": 0, "message": "User Inserted"})
+    if not owner_id or not owner_type or not image_url or not name or price is None:
+        return jsonify({'status': 1, 'error': 'Missing required fields'}), 400
+
+    # Check if the item already exists in the cart for the given owner_id and owner_type
+    existing_item = Cart.query.filter_by(owner_id=owner_id, owner_type=owner_type, name=name).first()
+
+    if existing_item:
+        # If item exists, increase the quantity
+        existing_item.quantity += quantity
+        db.session.commit()
+        return jsonify({'status': 0, 'message': 'Item quantity updated in cart'})
+    else:
+        # If item doesn't exist, create a new cart item
+        new_item = Cart(
+            owner_id=owner_id,
+            owner_type=owner_type,
+            image_url=image_url,
+            name=name,
+            price=price,
+            quantity=quantity
+        )
+        db.session.add(new_item)
+        db.session.commit()
+        return jsonify({'status': 0, 'message': 'Item added to cart'})
+
+
+@app.route('/cart/view')
+def view_cart():
+    # Get query params
+    owner_id = request.args.get('owner_id')
+    owner_type = request.args.get('owner_type')
+
+    # Debugging log for received parameters
+    print(f"Received owner_id: {owner_id}, owner_type: {owner_type}")
+
+    # Check if required parameters are missing
+    if not owner_id or not owner_type:
+        return jsonify({'status': 1, 'error': 'Missing owner_id or owner_type'}), 400
+
+    try:
+        # Fetch cart items from the database
+        cart_items = Cart.query.filter_by(owner_id=owner_id, owner_type=owner_type).all()
+
+        # If no items found, return a response indicating the cart is empty
+        if not cart_items:
+            return jsonify({'status': 0, 'data': [], 'message': 'Cart is empty'})
+
+        # Serialize the cart items for the response
+        data = []
+        for item in cart_items:
+            data.append({
+                'owner_id': item.owner_id,
+                'owner_type': item.owner_type,
+                'image_url': item.image_url,  # Ensure these fields are correct
+                'name': item.name,
+                'price': str(item.price),  # Convert price to string if needed
+                'quantity': item.quantity
+            })
+
+        # Return the cart items in the response
+        return jsonify({'status': 0, 'data': data})
+
     except Exception as e:
-        return jsonify({"status": 1, "message": str(e)})
+        # Handle unexpected errors and log them
+        print(f"Error while fetching cart items: {str(e)}")
+        return jsonify({'status': 1, 'error': 'Server error'}), 500
 
 @app.route('/cart', methods=['GET'])
-def view_cart():
-    try:
-        data = GET_SQL("select * from cart")
-        return render_template(cart.html)
-    except Exception as e:
-        return jsonify({"status": 1, "message": str(e)})
+def show_cart_page():
+    return render_template('cart.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

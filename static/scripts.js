@@ -1,20 +1,29 @@
+let errorCounter = 0;
+
 $(document).ready(function () {
     loadNav();
     loadModals();
     getPaintings();
     getCart();
 
+	const sessionID = getCookie("sessionID");
+
+    if (sessionID === null) {
+        // Generate a new session ID if not found in cookies
+        const newSessionID = generateSessionID(); // Generate a new session ID
+        setCookie("sessionID", newSessionID, 1);  // Set the session cookie with a 1-day expiry
+        console.log("New session ID generated:", newSessionID);
+    } else {
+        console.log("Session ID from cookie:", sessionID);
+    }
+	
+	console.log("sessionId: ", getCookie("sessionID"));
+
     // Event listener for toggling dropdown
     document.getElementById('productDropdown').addEventListener('click', function(event) {
         event.preventDefault(); // Prevent default link behavior
         const productList = document.getElementById('productList');
-        
-        // Toggle the visibility of the product list
-        if (productList.style.display === "block") {
-            productList.style.display = "none";
-        } else {
-            productList.style.display = "block";
-        }
+        productList.style.display = (productList.style.display === "block") ? "none" : "block";
     });
 
     if (getCookie("sessionID") != null) {
@@ -22,14 +31,15 @@ $(document).ready(function () {
     }
 });
 
+
 function clearCookie(name) {
     document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
 function setCookie(name, value, days) {
-    var expires = "";
+    let expires = "";
     if (days) {
-        var date = new Date();
+        const date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
         expires = "; expires=" + date.toUTCString();
     }
@@ -37,20 +47,16 @@ function setCookie(name, value, days) {
 }
 
 function getCookie(name) {
-    var nameEQ = name + "=";
-    var cookies = document.cookie.split(';');
-    for(var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i];
-        while (cookie.charAt(0) == ' ') {
-            cookie = cookie.substring(1, cookie.length);
-        }
-        if (cookie.indexOf(nameEQ) == 0) {
-            return cookie.substring(nameEQ.length, cookie.length);
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    for(let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.indexOf(nameEQ) === 0) {
+            return cookie.substring(nameEQ.length);
         }
     }
     return null;
 }
-
 
 function loadNav() {
     $("#navBar").prepend(`
@@ -80,7 +86,7 @@ function loadNav() {
                     </li>
                 </ul>
             </div>
-            <ul class="navbar-nav mb-2 mb-lg-0 justify-content-right" id="accountActionButtons">
+            <ul class="navbar-nav mb-2 mb-lg-0 justify-content-end" id="accountActionButtons">
                 <li class="nav-item">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signUpModal">
                         Sign Up
@@ -289,332 +295,317 @@ function getPaintings() {
 	});
 }
 
+// Toggle password visibility for signup form
 function toggleSignupPasswordVisibility() {
-	var passwordInput = $('#signupPassword');
-	if (passwordInput.attr('type') === 'password') {
-		passwordInput.attr('type', 'text');
-	  } else {
-		passwordInput.attr('type', 'password');
-	  }
+    const passwordInput = $('#signupPassword');
+    passwordInput.attr('type', passwordInput.attr('type') === 'password' ? 'text' : 'password');
 }
 
-
-function getSignUp() {
-	a = $.ajax({
-		url: 'final.php/signUp',
-		type: "POST",
-		contentType: 'application/json',
-		data: JSON.stringify({
-			email: $('#signupEmail').val(),
-			username: $('#signupUsername').val(),
-			password: $('#signupPassword').val()
-		}),
-    	dataType: 'json'
-    }).done(function (data) {
-		if (data.status == 0) {
-			loginFromSignup($('#signupUsername').val(), $('#signupPassword').val());
-		} else {
-			// Display signup error
-			// log it
-			alert('Username or email exists')
-		}
-	}).fail(function (error) {
-		errorCounter++;
-		$("#main").html(errorCounter);
-		//console.log("error", error.statusText);
-		$("#main").prepend("load Error " + new Date() + "<br>");
-	});
+// Toggle password visibility for login form
+function toggleLoginPasswordVisibility() {
+    const passwordInput = $('#loginPassword');
+    passwordInput.attr('type', passwordInput.attr('type') === 'password' ? 'text' : 'password');
 }
 
 function validateSignUp() {
-	// Get the form and its input fields
-	var form = $('#signUpForm');
-	var usernameInput = $('#signupUsername').val();
-	var passwordInput = $('#signupPassword').val();
-	var emailInput = $('#signupEmail').val();
-  
-	let emailTest = /^[a-zA-Z ]{1,20}$/;
-	if (!emailTest.test(emailInput)) {
-			alert('Email must be up to 20 characters long and can only contain letters and spaces')
-			return false;
-	}
+    const usernameInput = $('#signupUsername').val();
+    const passwordInput = $('#signupPassword').val();
+    const emailInput = $('#signupEmail').val();
 
-	let userTest = /^[a-zA-Z ]{1,20}$/;
-	if (!userTest.test(usernameInput)) {
-			alert('Username must contain only letters and numbers')
-			return false;
-	}
+    // Email regex (simple standard email format)
+    const emailTest = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailTest.test(emailInput)) {
+        alert('Please enter a valid email address.');
+        return false;
+    }
 
-	let passwordTest = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@!?\.]{8,}$/;
-	//^[a-zA-Z0-9@!?\.]{8,}$
-	if (!passwordTest.test(passwordInput)) {
-			alert('Password must be at least 8 characters long and can only contain letters (both lowercase and uppercase), numbers, @, !, ?, or .')
-			return false;
-	}
-	getSignUp();
-	$('#signUpModal').modal('hide');
+    // Username: letters and numbers, 1-20 chars
+    const userTest = /^[a-zA-Z0-9]{1,20}$/;
+    if (!userTest.test(usernameInput)) {
+        alert('Username must contain only letters and numbers and be up to 20 characters.');
+        return false;
+    }
+
+    // Password: min 8 chars, at least one uppercase, one lowercase, one digit; allows @!?.
+    const passwordTest = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@!?\.]{8,}$/;
+    if (!passwordTest.test(passwordInput)) {
+        alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number. Allowed special characters are @, !, ?, and .');
+        return false;
+    }
+
+    getSignUp();
+    $('#signUpModal').modal('hide');
 }
 
-function toggleSignupPasswordVisibility() {
-	var passwordInput = $('#signupPassword');
-	if (passwordInput.attr('type') === 'password') {
-		passwordInput.attr('type', 'text');
-	  } else {
-		passwordInput.attr('type', 'password');
-	  }
-}
+function getSignUp() {
+    const email = $('#signupEmail').val();
+    const username = $('#signupUsername').val();
+    const password = $('#signupPassword').val();
 
-function toggleLoginPasswordVisibility() {
-	var passwordInput = $('#loginPassword');
-	if (passwordInput.attr('type') === 'password') {
-		passwordInput.attr('type', 'text');
-	  } else {
-		passwordInput.attr('type', 'password');
-	  }
+    fetch('/signup', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 0) {
+            loginFromSignup(username, password);
+        } else {
+            alert('Username or email already exists.');
+        }
+    })
+    .catch(error => {
+        errorCounter++;
+        const mainDiv = document.getElementById('main');
+        mainDiv.innerHTML = errorCounter;
+        mainDiv.insertAdjacentHTML('afterbegin', "Load Error " + new Date() + "<br>");
+        console.error('Signup error:', error);
+    });
 }
 
 function validateLogin() {
-	// Get the form and its input fields
-	var form = $('#loginForm');
-	var usernameInput = $('#loginUsername').val();
-	var passwordInput = $('#loginPassword').val();
-  
-	let userTest = /^[a-zA-Z ]{1,20}$/;
-	if (!userTest.test(usernameInput)) {
-			alert('Username must contain only letters and numbers')
-			return false;
-	}
+    const usernameInput = $('#loginUsername').val();
+    const passwordInput = $('#loginPassword').val();
 
-	let passwordTest = /^[a-zA-Z ]{1,20}$/;
-	if (!passwordTest.test(passwordInput)) {
-			alert('Password must be at least 8 characters long and can only contain letters (both lowercase and uppercase), numbers, @, !, ?, or .')
-			return false;
-	}
-	getLogin();
-	$('#loginModal').modal('hide');
+    const userTest = /^[a-zA-Z0-9]{1,20}$/;
+    if (!userTest.test(usernameInput)) {
+        alert('Username must contain only letters and numbers and be up to 20 characters.');
+        return false;
+    }
+
+    // Password validation same as signup (assuming same rules)
+    const passwordTest = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@!?\.]{8,}$/;
+    if (!passwordTest.test(passwordInput)) {
+        alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number. Allowed special characters are @, !, ?, and .');
+        return false;
+    }
+
+    getLogin();
+    $('#loginModal').modal('hide');
 }
 
 function loginFromSignup(user, pass) {
-	a = $.ajax({
-		url: 'final.php/login',
-		type: "GET",
-		contentType: 'application/json',
-		data: {
-			username: user,
-			password: pass
-		}
-	}).done(function (data) {
-		if (data.status == 0) {
-			console.log("Login worked");
-			setCookie("username", $('#signupUsername').val(), 1);
-			setCookie("sessionID", data.session, 1);
-			updateLoggedIn();
-		} else {
-			//console.log("User/Password not found");
-		}
-	}).fail(function (error) {
-		errorCounter++;
-		$("#main").html(errorCounter);
-		//console.log("error", error.statusText);
-		$("#main").prepend("load Error " + new Date() + "<br>");
-	});
+    fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 0) {
+            console.log("Login succeeded.");
+            setCookie("username", user, 1);
+            setCookie("sessionID", data.session, 1);
+            updateLoggedIn();
+        } else {
+            console.warn("User/Password not found.");
+        }
+    })
+    .catch(error => {
+        errorCounter++;
+        const mainDiv = document.getElementById("main");
+        mainDiv.innerHTML = errorCounter;
+        mainDiv.insertAdjacentHTML('afterbegin', "Load Error " + new Date() + "<br>");
+        console.error("Login error:", error);
+    });
 }
 
 function getLogin() {
-	a = $.ajax({
-		url: 'final.php/login',
-		type: "GET",
-		contentType: 'application/json',
-		data: {
-			username: $('#loginUsername').val(),
-			password: $('#loginPassword').val()
-		}
-	}).done(function (data) {
-		if (data.status == 0) {
-			//console.log("Login worked");
-			setCookie("username", $('#loginUsername').val(), 1);
-			setCookie("sessionID", data.session, 1);
-			updateLoggedIn();
-		} else {
-			//console.log("It didnt work");
-			//console.log(data);
-		}
-	}).fail(function (error) {
-		//console.log(error.message);
-	});
+    const username = $('#loginUsername').val();
+    const password = $('#loginPassword').val();
+
+    fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 0) {
+            setCookie("username", username, 1);
+            setCookie("sessionID", data.session, 1);
+            updateLoggedIn();
+        } else {
+            console.error("Login failed:", data);
+            alert('Login failed. Please check your username and password.');
+        }
+    })
+    .catch(error => {
+        console.error("Login error:", error);
+    });
 }
 
 function updateLoggedIn() {
-	$("#accountActionButtons").html(`
-		<li class="nav-item">
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#logoutModal">
-		  Logout
-		</button>
-	  </li>
-	`);
-	$("#logTitleSpan").text(getCookie("username"));
+    $("#accountActionButtons").html(`
+        <li class="nav-item">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                Logout
+            </button>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link me-4" href="/cart">Cart</a>
+        </li>
+    `);
+    $("#logTitleSpan").text(getCookie("username"));
 }
 
 function getLogout() {
-	if (getCookie("sessionID") != null) {
-		var session = getCookie("sessionID");
-		var user = getCookie("username");
-		a = $.ajax({
-			url: 'final.php/logout',
-			type: "GET",
-			contentType: 'application/json',
-			data: {
-				username: user,
-				session: session
-			}
-		}).done(function (data) {
-			if (data.status == 0) {
-				clearCookie("sessionID");
-				clearCookie("username");
-				updateLoggedOut();
-			} else {
-				//console.log("Logout error");
-				//console.log(data);
-			}
-		}).fail(function (error) {
-			errorCounter++;
-			$("#main").html(errorCounter);
-			//console.log("error", error.statusText);
-			$("#main").prepend("load Error " + new Date() + "<br>");
-		});
-	} else {
-		a = $.ajax({
-			url: 'final.php/logout',
-			type: "GET",
-			contentType: 'application/json',
-			data: {
-				username: $('#logoutUsername').val(),
-				session: $('#logoutSession').val()
-			}
-		}).done(function (data) {
-			if (data.status == 0) {
-				clearCookie("sessionID");
-				clearCookie("username");
-				updateLoggedOut();
-			} else {
-				// Display signup error
-				// log it
-			}
-		}).fail(function (error) {
-			errorCounter++;
-			$("#main").html(errorCounter);
-			//console.log("error", error.statusText);
-			$("#main").prepend("load Error " + new Date() + "<br>");
-		});
-	}
+    const session = getCookie("sessionID");
+    const user = getCookie("username");
+
+    // Prepare data to send based on whether cookies exist or fallback to input fields
+    const usernameToSend = session != null ? user : $('#logoutUsername').val();
+    const sessionToSend = session != null ? session : $('#logoutSession').val();
+
+    // Build URL with query parameters for GET request
+    const url = new URL('/logout', window.location.origin);
+    url.searchParams.append('username', usernameToSend);
+    url.searchParams.append('session', sessionToSend);
+
+    fetch(url.toString(), {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 0) {
+            clearCookie("sessionID");
+            clearCookie("username");
+            updateLoggedOut();
+        } else {
+            console.warn("Logout error:", data);
+        }
+    })
+    .catch(error => {
+        errorCounter++;
+        const mainDiv = document.getElementById("main");
+        mainDiv.innerHTML = errorCounter;
+        mainDiv.insertAdjacentHTML('afterbegin', "Load Error " + new Date() + "<br>");
+        console.error("Logout error:", error);
+    });
 }
 
 function updateLoggedOut() {
-	$("#accountActionButtons").html(`
-		<li class="nav-item">
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signUpModal">
-		Sign Up
-		</button>
-		</li>
-		<li class="nav-item">
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-		Login
-		</button>
-	</li>
-	`);
-	$("#logTitleSpan").text("Please login to use this feature");
+    $('#accountActionButtons').html(`
+        <li class="nav-item me-2">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#signUpModal">
+                Sign Up
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                Login
+            </button>
+        </li>
+    `);
+
+    $('#logTitleSpan').text("Please log in to use this feature.");
 }
 
 function addToCart(painting) {
     const username = getCookie('username');
     const sessionID = getCookie('sessionID');
-    console.log(painting);
-	$.ajax({
-		url: 'final.php/cart',
-		method: 'POST',
-		dataType: 'json',
-		data: {
-			image: painting.image_url,
-			name: painting.name,
-			price: painting.price,
-		}
-		}).done(function (data) {
-			if (data.status === 0 || data.status === 1) {
-				console.log('Item added successfully');
-				alert('Item added to cart');
-			} else {
-				console.error('Failed to add item to cart');
-			}
-		}).fail(function (error) {
-			console.log("error", error.statusText);
-		});
+
+    fetch('/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            owner_id: username || sessionID,
+            owner_type: username ? 'username' : 'session',
+            image_url: painting.image_url,  // consistent key name
+            name: painting.name,
+            price: painting.price
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 0 || data.status === 1) {
+            console.log('Item added successfully');
+            alert('Item added to cart');
+        } else {
+            console.error('Failed to add item to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+    });
 }
 
 function getCart() {
-    var username = getCookie('username');
-    if (!username) {
-        console.error('Username is undefined or empty');
+    const username = getCookie('username');
+    const sessionID = getCookie('sessionID');
+
+    let owner_id, owner_type;
+
+    if (username) {
+        owner_id = username;
+        owner_type = 'username';
+    } else if (sessionID) {
+        owner_id = sessionID;
+        owner_type = 'session';
+    } else {
+        console.error('No user or session ID found');
         return;
     }
-	$.ajax({
-        url: 'final.php/viewCart',
-        method: 'GET',
-        dataType: 'json',
-        data: {
-            username: username
+
+    fetch(`/cart/view?owner_id=${encodeURIComponent(owner_id)}&owner_type=${encodeURIComponent(owner_type)}`)
+    .then(response => response.json())
+    .then(response => {
+        if (response.status === 0 && Array.isArray(response.data)) {
+            const tableBody = document.getElementById('table-cart');
+            tableBody.innerHTML = '';  // Clear existing rows
+            let subTotal = 0;
+
+            response.data.forEach(cart => {
+                const row = document.createElement('div');
+                row.className = 'row g-0 mb-3 align-items-center';
+
+                // Image column
+                const colImage = document.createElement('div');
+                colImage.className = 'col-sm-2';
+                const img = document.createElement('img');
+                img.src = cart.image_url;
+                img.alt = cart.name;
+                img.width = 150;
+                img.height = 150;
+                img.className = 'img-fluid rounded';
+                colImage.appendChild(img);
+
+                // Name & Quantity
+                const colDescription = document.createElement('div');
+                colDescription.className = 'col-sm-6 ps-3';
+                const itemName = document.createElement('h6');
+                itemName.textContent = cart.name;
+                const quantity = document.createElement('p');
+                quantity.textContent = `Quantity: ${cart.quantity}`;
+                colDescription.appendChild(itemName);
+                colDescription.appendChild(quantity);
+
+                // Price
+                const colPrice = document.createElement('div');
+                colPrice.className = 'col-sm-2';
+                const totalItemPrice = parseFloat(cart.price) * cart.quantity;
+                colPrice.textContent = `$${totalItemPrice.toFixed(2)}`;
+
+                row.appendChild(colImage);
+                row.appendChild(colDescription);
+                row.appendChild(colPrice);
+                tableBody.appendChild(row);
+
+                subTotal += totalItemPrice;
+
+                const divider = document.createElement('hr');
+                tableBody.appendChild(divider);
+            });
+
+            document.getElementById('cart-subtotal').textContent = subTotal.toFixed(2);
+        } else {
+            console.error('Invalid data format received:', response);
         }
-	}).done(function (response) {
-        // Check the structure of the response received
-		if (response.status == 0 && response.data && Array.isArray(response.data)) {
-			var tableBody = $('#table-cart');
-			tableBody.empty(); // Clear existing table rows
-			var subTotal = 0;
-		
-			response.data.forEach(function(cart) {
-				// Create a table row
-				var row = $('<div class = row g-0></div>');
-		
-				// Column for image
-				var colImage = $('<div class = col-sm-2></div>');
-				var img = $('<img>')
-					.addClass('sc-product-image img-fluid')
-					.attr('src', cart.image)
-					.attr('alt', cart.name)
-					.attr('width', '250')
-					.attr('height', '250')
-				colImage.append(img).append('<br><br>');
-		
-				// Column for item name and description in a single column
-				var colDescription = $('<div class="col-sm-3"></div>');
-				var itemName = $('<div></div>').text(cart.name).css('font-weight', 'bold');
-				var colQuantity = $('<div></div>').text('quantity: ' + cart.quantity);
-				colDescription.append(itemName).append(colQuantity);
-
-		
-				// Column for item price
-				var colPrice = $('<div class="col-sm-1"></div>').text('$' + cart.price);
-				subTotal += parseFloat(cart.price);
-
-				// Append columns to the row
-				row.append(colImage);
-				row.append(colDescription);
-				row.append(colPrice);
-
-				// Append the row to the table body
-				tableBody.append(row);
-				tableBody.append('______________________________________________________________________________________________');
-				tableBody.append('<br><br>')
-			});
-			tableBody.append('<br>');
-			$('#cart-subtotal').text(subTotal.toFixed(2));
-		} else {
-			console.log("logging response: " + response.data);
-			console.error('Invalid data format received:', response);
-		}
-	}).fail( function(error) {
-			console.error('Error fetching data:', error);
-	});
+    })
+    .catch(error => {
+        console.error('Error fetching cart:', error);
+    });
 }
-
-
-

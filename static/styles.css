@@ -96,6 +96,10 @@ h3 {
 
 }
 
+.bg-dark-beige {
+    background-color: rosybrown; /* Dark warm brown */
+}
+
 
 .first, .second, .third {
     width: 50vh;
