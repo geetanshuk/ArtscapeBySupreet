@@ -117,7 +117,7 @@ def api_get_paintings():
 
 @app.route('/product/<product_name>', methods=['GET'])
 def product_details(product_name):
-    product = Cart.query.filter_by(name=product_name).first()  # You can use product_id instead if you have a unique identifier.
+    product = Paintings.query.filter_by(name=product_name).first()  # You can use product_id instead if you have a unique identifier.
 
     if not product:
         return render_template('error.html', message="Product not found")

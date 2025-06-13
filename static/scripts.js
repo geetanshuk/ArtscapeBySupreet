@@ -16,7 +16,6 @@ $(document).ready(function () {
     } else {
         console.log("Session ID from cookie:", sessionID);
     }
-	
 	console.log("sessionId: ", getCookie("sessionID"));
 
     // Event listener for toggling dropdown
@@ -208,92 +207,77 @@ function loadModals() {
 }
 
 function getPaintings() {
-	$.ajax({
+    $.ajax({
         url: '/api/paintings',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
-        // Check the structure of the response received
-		if (response.data && Array.isArray(response.data)) {
-			var tablePainting = $('#table-paintings');
-			tablePainting.empty(); // Clear existing table rows
+            if (response.data && Array.isArray(response.data)) {
+                var tablePainting = $('#table-paintings');
+                tablePainting.empty(); // Clear existing table rows
 
-			// Create a row for the paintings
-			var row = $('<div class="row"></div>'); // Start a new row
+                var row = $('<div class="row"></div>'); // Start a new row
 
-			// Loop through the paintings
-			response.data.forEach(function(painting, index) {
-                // Create a column for each painting
-                var col = $('<div class="col-sm-4 mb-3"></div>'); // Bootstrap column for each painting
-            
-                // Create a frame container for the image
-                var frame = $('<div class="painting-frame" style="width: 100%; height: 250px; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden;"></div>');
-            
-                // Create image element
-                var img = $('<img>')
-                    .attr('id', 'painting-image')
-                    .attr('src', painting.image_url)  // Set the source of the image dynamically
-                    .attr('alt', painting.name)       // Set the alt attribute
-                    .css({
-                        'max-width': '100%',  // Ensures image fits within the width of the frame
-                        'max-height': '100%', // Ensures image fits within the height of the frame
-                        'object-fit': 'contain' // This ensures the image will be centered without distortion
-                        
+                response.data.forEach(function(painting, index) {
+                    var col = $('<div class="col-sm-4 mb-3"></div>'); // Bootstrap column for each painting
+
+                    var frame = $('<div class="painting-frame" style="width: 100%; height: 250px; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; overflow: hidden;"></div>');
+
+                    // Create the button to make the image clickable
+                    var imgButton = $('<button class="painting-button custom-button"></button>');  // Create the button element
+                    
+                    var img = $('<img>') // Create the image inside the button
+                        .attr('src', painting.image_url)  // Set the image source dynamically
+                        .attr('alt', painting.name)       // Set the alt attribute
+                        .css({
+                            'max-width': '100%',
+                            'max-height': '100%',
+                            'object-fit': 'contain',
+                        });
+
+                    imgButton.append(img); // Append the image to the button
+
+                    // Add click functionality to the button, redirecting to the product page
+                    imgButton.on('click', function() {
+                        // Redirect to the product details page based on the painting's name
+                        window.location.href = "/product/" + encodeURIComponent(painting.name); 
                     });
-            
-                // Append the image to the frame
-                
-            
-                // Create name and description for the painting
-                var name = $('<div class="painting-name font-weight-bold mt-2"></div>').text(painting.name);
-                var description = $('<div class="painting-description"></div>').text(painting.description);
-            
-                // Create price element
-                var price = $('<div class="painting-price text-muted mt-2"></div>').text('$' + painting.price);
-                var addToCartButton = $('<button id="cart">Add to Cart</button>');
-                
-                addToCartButton.on('click', function() {
-					addToCart(painting);
-					// You can add more actions here, such as opening a modal, redirecting, etc.
-				});
 
-                frame.append(img)
-                    .append(name)
-                    .append(price)
-                    .append(addToCartButton);
-                    
-            
-                // Append the frame, name, description, and price to the column
-                col.append(frame)
-                   .append(name)
-                   //.append(description)
-                   .append(price)
-                   .append(addToCartButton);
-            
-                // Append the column to the row
-                
-                row.append(col);
-                
-            
-                // Every 4th painting (index + 1 % 4 == 0) should create a new row
-                if ((index + 1) % 3 === 0 || index === response.data.length - 1) {
-                    // Add the row to the table
-                    tablePainting.append(row);
-                    
-                    // Reset the row for the next set of paintings
-                    row = $('<div class="row"></div>');
-                }
-            });
-            
-		} else {
-			console.error('Invalid data format received:', response);
-		}
-	},
-	error: function(xhr, status, error) {
-		console.error('Error fetching data:', error);
-	}
-	});
+                    frame.append(imgButton); // Add the button to the frame
+
+                    var name = $('<div class="painting-name font-weight-bold mt-2"></div>').text(painting.name);
+                    var price = $('<div class="painting-price text-muted mt-2"></div>').text('$' + painting.price);
+
+                    var addToCartButton = $('<button id="cart">Add to Cart</button>');
+
+                    addToCartButton.on('click', function() {
+                        addToCart(painting);
+                    });
+
+                    col.append(frame)
+                        .append(name)
+                        .append(price)
+                        .append(addToCartButton);
+
+                    row.append(col);
+
+                    // Every 3rd painting (index + 1 % 3 == 0) should create a new row
+                    if ((index + 1) % 3 === 0 || index === response.data.length - 1) {
+                        tablePainting.append(row);
+                        row = $('<div class="row"></div>'); // Reset the row for the next set of paintings
+                    }
+                });
+            } else {
+                console.error('Invalid data format received:', response);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching data:', error);
+        }
+    });
 }
+
+
 
 // Toggle password visibility for signup form
 function toggleSignupPasswordVisibility() {
