@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ product.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"
+        integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="navBar"></div>
+
+    <!-- Product Details Section -->
+    <div class="container mt-5">
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid rounded shadow-lg mb-4 mb-md-0">
+        </div>
+
+        <!-- Product Information -->
+        <div class="col-md-6">
+            <h1 class="display-4 mb-3">{{ product.name }}</h1>
+
+            <!-- Price -->
+            <p class="lead mb-3 text-center"><strong>Price:</strong> ${{ product.price }}</p>
+
+            <!-- Description -->
+            <p class="mb-4 text-center"><strong>Description:</strong> {{ product.description or "No description available" }}</p>
+
+            <!-- Add to Cart Button -->
+            <div class="d-flex justify-content-center mt-3">
+                <button class="btn btn-primary btn-lg w-100" onclick="addToCart('{{ product.name }}')">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        <!-- Reviews Section -->
+        <div class="mt-5">
+            <h3>Customer Reviews</h3>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <strong>Jane Doe</strong>
+                    <small>5 stars</small>
+                </div>
+                <p>"Great quality and fast delivery! I love it!"</p>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <strong>John Smith</strong>
+                    <small>4 stars</small>
+                </div>
+                <p>"Good product, but the sizing was a bit off."</p>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        <div class="mt-5">
+            <h3>Related Products</h3>
+            <div class="row">
+                <!-- Example Related Products -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="/static/images/product1.jpg" class="card-img-top" alt="Related Product 1">
+                        <div class="card-body">
+                            <h5 class="card-title">Product Name</h5>
+                            <p class="card-text">$49.99</p>
+                            <a href="/product/Product-Name" class="btn btn-outline-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="/static/images/product2.jpg" class="card-img-top" alt="Related Product 2">
+                        <div class="card-body">
+                            <h5 class="card-title">Product Name</h5>
+                            <p class="card-text">$39.99</p>
+                            <a href="/product/Product-Name" class="btn btn-outline-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="/static/images/product3.jpg" class="card-img-top" alt="Related Product 3">
+                        <div class="card-body">
+                            <h5 class="card-title">Product Name</h5>
+                            <p class="card-text">$59.99</p>
+                            <a href="/product/Product-Name" class="btn btn-outline-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section (Optional) -->
+    <!-- Footer -->
+<footer class="bg-dark-beige text-light pt-5 pb-3">
+    <div class="container">
+        <div class="row">
+            <!-- About Us Section -->
+            <div class="col-md-3">
+                <h5 class="text-uppercase">About Us</h5>
+                <p>We are passionate about providing high-quality clothing for every occasion. Our goal is to offer a personalized shopping experience for our customers.</p>
+            </div>
+
+            <!-- Quick Links Section -->
+            <div class="col-md-3">
+                <h5 class="text-uppercase">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light">Home</a></li>
+                    <li><a href="#" class="text-light">Shop</a></li>
+                    <li><a href="#" class="text-light">Product Categories</a></li>
+                    <li><a href="#" class="text-light">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <!-- Customer Support Section -->
+            <div class="col-md-3">
+                <h5 class="text-uppercase">Customer Support</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light">FAQs</a></li>
+                    <li><a href="#" class="text-light">Return Policy</a></li>
+                    <li><a href="#" class="text-light">Shipping Information</a></li>
+                    <li><a href="#" class="text-light">Track Order</a></li>
+                </ul>
+            </div>
+
+            <!-- Social Media Section -->
+            <div class="col-md-3">
+                <h5 class="text-uppercase">Follow Us</h5>
+                <div class="social-icons">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-square fa-2x"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-twitter-square fa-2x"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram-square fa-2x"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-youtube-square fa-2x"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Newsletter Section -->
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <h5 class="text-uppercase mb-3">Subscribe to Our Newsletter</h5>
+                <p>Get the latest updates, offers, and promotions right in your inbox!</p>
+                <form action="#" method="POST">
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Enter your email" required>
+                        <button class="btn btn-primary" type="submit">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer Bottom Section -->
+        <div class="row mt-4 pt-3 border-top">
+            <div class="col-md-12 text-center">
+                <p>&copy; 2025 Your Company. All rights reserved.</p>
+                <p><a href="#" class="text-light">Privacy Policy</a> | <a href="#" class="text-light">Terms of Service</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- End Footer -->
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+
+</html>
+
+
