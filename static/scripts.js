@@ -1,10 +1,12 @@
+let errorCounter = 0;
+
 $(document).ready(function () {
     loadNav();
     loadModals();
     getPaintings();
     getCart();
 
-    const sessionID = getCookie("sessionID");
+	const sessionID = getCookie("sessionID");
 
     if (sessionID === null) {
         // Generate a new session ID if not found in cookies
@@ -38,6 +40,7 @@ function generateSessionID() {
     }
     return sessionId;
 }
+
 
 
 function clearCookie(name) {
