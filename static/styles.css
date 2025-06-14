@@ -52,38 +52,42 @@ img.product-image {
 
 }
 
-.intro-split-section {
-  height: 100vh;
-  overflow: hidden;
+.intro-modern {
+  background: #fdf8f3;
+  padding: 5rem 1rem;
 }
 
-.intro-split-img {
-  object-fit: contain;
-  object-position: center;
-}
-
-.intro-split-text h1 {
-  font-family: 'Bubblegum Sans', cursive;
+.intro-modern-heading {
+  font-size: 3rem;
   font-weight: 700;
+  color: #3a2c1f;
+  font-family: 'Bubblegum Sans', cursive;
+  margin-bottom: 1.5rem;
 }
 
-.intro-split-text p {
+.intro-modern-subtext {
   font-size: 1.25rem;
+  color: #5a4c3e;
+  line-height: 1.8;
+  max-width: 500px;
 }
 
-@media (max-width: 768px) {
-  .intro-split-section {
-    height: auto;
-  }
-
-  .intro-split-text {
-    padding: 3rem 1rem;
-  }
-
-  .intro-split-img {
-    height: 300px;
-  }
+.intro-modern-image-wrapper {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+.intro-modern-image-wrapper img {
+  max-height: 500px;
+  object-fit: contain;
+  width: 100%;
+}
+
 
 
 #cart {
@@ -99,6 +103,10 @@ img.product-image {
     font-size: 3vw;
     text-align: center;
     color: purple;
+}
+
+.intro-modern-heading {
+  text-align: left;
 }
 
 h1 {
@@ -138,9 +146,12 @@ h3 {
 }
 
 .bg-dark-beige {
-    background-color: rosybrown; /* Dark warm brown */
+    background-color: #fdf8f3; /* Dark warm brown */
 }
 
+h1.intro-modern-heading {
+  text-align: left;
+}
 
 .first, .second, .third {
     width: 50vh;
