@@ -52,6 +52,40 @@ img.product-image {
 
 }
 
+.intro-split-section {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.intro-split-img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.intro-split-text h1 {
+  font-family: 'Bubblegum Sans', cursive;
+  font-weight: 700;
+}
+
+.intro-split-text p {
+  font-size: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .intro-split-section {
+    height: auto;
+  }
+
+  .intro-split-text {
+    padding: 3rem 1rem;
+  }
+
+  .intro-split-img {
+    height: 300px;
+  }
+}
+
+
 #cart {
   font-weight: bold;
   border-radius: 20px;
@@ -200,7 +234,68 @@ h3 {
     border: 1px solid #ccc;
 }
 
+.categories-container {
+  max-width: 1200px;
+  margin: 0 auto 4rem;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
 
+.category-button {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.1);
+  width: 340px; /* Increased width */
+  text-align: center;
+  user-select: none;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+}
 
+.category-button:hover {
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.15);
+  transform: translateY(-4px); /* optional lift effect */
+}
 
+.category-button p {
+  font-family: 'Bubblegum Sans', cursive;
+  font-size: 1.8rem; /* Larger font */
+  color: #3a2c1f;
+  margin: 1rem 0;
+}
+
+.category-button img {
+  width: 100%;
+  height: 260px; /* Increased height */
+  object-fit: cover;
+  display: block;
+  border-radius: 18px 18px 0 0;
+}
+
+@media (max-width: 768px) {
+  .intro-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .intro-text,
+  .intro-image-container {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .categories-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .category-button {
+    width: 90%; /* Make them responsive on mobile */
+  }
+}
 
