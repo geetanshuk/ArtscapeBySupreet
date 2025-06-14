@@ -1,12 +1,10 @@
-let errorCounter = 0;
-
 $(document).ready(function () {
     loadNav();
     loadModals();
     getPaintings();
     getCart();
 
-	const sessionID = getCookie("sessionID");
+    const sessionID = getCookie("sessionID");
 
     if (sessionID === null) {
         // Generate a new session ID if not found in cookies
@@ -16,19 +14,30 @@ $(document).ready(function () {
     } else {
         console.log("Session ID from cookie:", sessionID);
     }
-	console.log("sessionId: ", getCookie("sessionID"));
 
-    // Event listener for toggling dropdown
-    document.getElementById('productDropdown').addEventListener('click', function(event) {
+    console.log("sessionId: ", getCookie("sessionID"));
+
+    // Event delegation for toggling dropdown
+    $(document).on('click', '#productDropdown', function(event) {
         event.preventDefault(); // Prevent default link behavior
-        const productList = document.getElementById('productList');
-        productList.style.display = (productList.style.display === "block") ? "none" : "block";
+        const productList = $('#productList');
+        productList.toggle(); // Toggle display of the dropdown menu
     });
 
     if (getCookie("sessionID") != null) {
         updateLoggedIn();
     }
 });
+
+function generateSessionID() {
+    // Generates a random 16-character alphanumeric session ID
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let sessionId = '';
+    for (let i = 0; i < 16; i++) {
+        sessionId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return sessionId;
+}
 
 
 function clearCookie(name) {
@@ -97,7 +106,7 @@ function loadNav() {
                     </button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link me-4" href="cart.html">Cart</a>
+                    <a class="nav-link me-4" href="/cart">Cart</a>
                 </li>
             </ul>
         </div>
@@ -225,7 +234,6 @@ function getPaintings() {
 
                     // Create the button to make the image clickable
                     var imgButton = $('<button class="painting-button custom-button"></button>');  // Create the button element
-                    
                     var img = $('<img>') // Create the image inside the button
                         .attr('src', painting.image_url)  // Set the image source dynamically
                         .attr('alt', painting.name)       // Set the alt attribute

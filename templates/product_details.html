@@ -17,12 +17,15 @@
 <body>
     <div id="navBar"></div>
 
-    <!-- Product Details Section -->
-    <div class="container mt-5">
+<!-- Product Details Section -->
+<div class="container mt-5">
     <div class="row">
         <!-- Product Image -->
         <div class="col-md-6">
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid rounded shadow-lg mb-4 mb-md-0">
+            <img class="product-image" src="{{ url_for('static', filename='images/' + product.image_url) }}"
+                alt="{{ product.name }}"
+                class="img-fluid rounded shadow-lg mb-4 mb-md-0"
+                style="max-width: 100%; height: auto; object-fit: contain;">
         </div>
 
         <!-- Product Information -->
@@ -30,14 +33,20 @@
             <h1 class="display-4 mb-3">{{ product.name }}</h1>
 
             <!-- Price -->
-            <p class="lead mb-3 text-center"><strong>Price:</strong> ${{ product.price }}</p>
+            <p class="lead mb-3 text-center">
+                <strong>Price:</strong> ${{ product.price }}
+            </p>
 
             <!-- Description -->
-            <p class="mb-4 text-center"><strong>Description:</strong> {{ product.description or "No description available" }}</p>
+            <p class="mb-4 text-center">
+                <strong>Description:</strong> {{ product.description or "No description available" }}
+            </p>
 
             <!-- Add to Cart Button -->
             <div class="d-flex justify-content-center mt-3">
-                <button class="btn btn-primary btn-lg w-100" onclick="addToCart('{{ product.name }}')">Add to Cart</button>
+                <button class="btn btn-primary btn-lg w-100" onclick="addToCart('{{ product.name }}')">
+                    Add to Cart
+                </button>
             </div>
         </div>
     </div>
